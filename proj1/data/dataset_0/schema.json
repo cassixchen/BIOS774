@@ -1,0 +1,8 @@
+{
+    "id_columns": [
+        "sample_id"
+    ],
+    "label_columns": [
+        "diagnosis"
+    ]
+}

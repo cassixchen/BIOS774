@@ -1,0 +1,18 @@
+{
+    "metric": "trustworthiness",
+    "n_neighbors": 10,
+    "n_training_samples": 2160,
+    "n_evaluation_samples": 540,
+    "methods": {
+        "pca": {
+            "preprocessing": "log_normalize",
+            "train_trustworthiness": 0.7889512145626625,
+            "eval_trustworthiness": 0.785039720368605
+        },
+        "umap": {
+            "preprocessing": "log_normalize",
+            "train_trustworthiness": 0.7893502327228137,
+            "eval_trustworthiness": 0.7803558945027009
+        }
+    }
+}

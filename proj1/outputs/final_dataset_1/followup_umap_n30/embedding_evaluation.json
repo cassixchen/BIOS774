@@ -1,0 +1,13 @@
+{
+    "metric": "trustworthiness",
+    "n_neighbors": 10,
+    "n_training_samples": 4500,
+    "n_evaluation_samples": 900,
+    "methods": {
+        "umap": {
+            "preprocessing": "none",
+            "train_trustworthiness": 0.8118550166623307,
+            "eval_trustworthiness": 0.8474102129263237
+        }
+    }
+}
