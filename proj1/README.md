@@ -91,6 +91,7 @@ Responsibilities are divided between:
 ├── outputs/
 └── report/
     └── report.tex
+    └── report.pdf
 ```
 
 `dataset_0` is used for development and workflow testing.
@@ -222,4 +223,4 @@ Method settings, preprocessing choices, quantitative results, and relevant limit
 
 ## Project Report
 
-In addition to the autonomous dataset reports, `report/report.tex` contains the manually prepared project report describing the agent architecture, decision-making process, experimental results, strengths, and limitations.
+In addition to the autonomous dataset reports, `report/report.tex` or `report/report.pdf` contains the manually prepared project report describing the agent architecture, decision-making process, experimental results, strengths, and limitations.
