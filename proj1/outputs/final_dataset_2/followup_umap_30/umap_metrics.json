@@ -1,7 +1,7 @@
 {
     "method": "UMAP",
-    "n_training_samples": 2160,
-    "n_evaluation_samples": 540,
+    "n_training_samples": 2110,
+    "n_evaluation_samples": 528,
     "n_features": 2000,
     "n_components": 2,
     "n_neighbors": 30,

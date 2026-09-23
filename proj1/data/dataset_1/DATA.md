@@ -14,18 +14,18 @@ The subset contains an equal number of observations from each tissue class.
 
 The `sample_id` column is an identifier and should not be used as an analysis feature.
 
-The `tissue_type` column contains the PathMNIST class label and should not be used as an input feature for unsupervised dimension reduction. It may be used after fitting for visualization and interpretation.
+The `tissue_type` column contains the PathMNIST tissue-class name and should be treated as a label rather than an analysis feature. Tissue-type labels may be used for post-hoc visualization and qualitative interpretation, but should not be used for preprocessing, dimension-reduction fitting, hyperparameter selection, or quantitative embedding evaluation.
 
-No scaling or other feature preprocessing was applied when constructing this dataset.
+No scaling or other feature preprocessing was applied when constructing this dataset. The autonomous analysis should inspect the supplied representation before determining appropriate preprocessing.
 
-## Tissue labels
+## Tissue types
 
-- 0: adipose
-- 1: background
-- 2: debris
-- 3: lymphocytes
-- 4: mucus
-- 5: smooth muscle
-- 6: normal colon mucosa
-- 7: cancer-associated stroma
-- 8: colorectal adenocarcinoma epithelium
+- adipose
+- background
+- debris
+- lymphocytes
+- mucus
+- smooth muscle
+- normal colon mucosa
+- cancer-associated stroma
+- colorectal adenocarcinoma epithelium

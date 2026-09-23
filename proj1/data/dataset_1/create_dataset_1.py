@@ -12,6 +12,13 @@ TRAIN_PER_CLASS = 500
 EVAL_PER_CLASS = 100
 
 
+# Use the official PathMNIST label names supplied by MedMNIST.
+PATHMNIST_LABELS = {
+    int(key): value
+    for key, value in medmnist.INFO["pathmnist"]["label"].items()
+}
+
+
 def sample_by_class(images, labels, n_per_class, rng):
     labels = labels.reshape(-1)
 
@@ -58,11 +65,20 @@ def make_dataframe(images, labels, start_id):
         "sample_id",
         [
             f"pathmnist_{i}"
-            for i in range(start_id, start_id + n_samples)
+            for i in range(
+                start_id,
+                start_id + n_samples,
+            )
         ],
     )
 
-    data["tissue_type"] = labels.astype(int)
+    # Store the official tissue names rather than numeric class IDs.
+    # This column is retained only as a label and is not an
+    # analysis feature.
+    data["tissue_type"] = [
+        PATHMNIST_LABELS[int(label)]
+        for label in labels
+    ]
 
     return data
 
@@ -71,11 +87,19 @@ def main():
     rng = np.random.default_rng(RANDOM_STATE)
 
     output_dir = Path("data/dataset_1")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
     # PathMNIST has already been downloaded manually to ~/.medmnist.
-    train_dataset = PathMNIST(split="train")
-    eval_dataset = PathMNIST(split="test")
+    train_dataset = PathMNIST(
+        split="train"
+    )
+
+    eval_dataset = PathMNIST(
+        split="test"
+    )
 
     train_images = train_dataset.imgs
     train_labels = train_dataset.labels
@@ -84,8 +108,10 @@ def main():
     eval_labels = eval_dataset.labels
 
     print("Original training images:", train_images.shape)
+
     print("Original evaluation images:", eval_images.shape)
 
+    # Select the same number of observations from each class.
     train_images, train_labels = sample_by_class(
         train_images,
         train_labels,
@@ -100,6 +126,7 @@ def main():
         rng,
     )
 
+    # Construct tabular datasets.
     train = make_dataframe(
         train_images,
         train_labels,
@@ -112,6 +139,7 @@ def main():
         start_id=len(train),
     )
 
+    # Save the training and evaluation datasets.
     train.to_csv(
         output_dir / "train.csv",
         index=False,
@@ -122,23 +150,41 @@ def main():
         index=False,
     )
 
+    # Tell the agent which columns are identifiers and labels.
     schema = {
         "id_columns": ["sample_id"],
         "label_columns": ["tissue_type"],
     }
 
-    with open(output_dir / "schema.json", "w") as f:
-        json.dump(schema, f, indent=4)
+    with open(
+        output_dir / "schema.json",
+        "w",
+    ) as f:
+        json.dump(
+            schema,
+            f,
+            indent=4,
+        )
 
-    info = medmnist.INFO["pathmnist"]
-    
+    # Print a summary of the constructed dataset.
     print("Training shape:", train.shape)
+
     print("Evaluation shape:", eval_data.shape)
+
     print("Analysis features:", train.shape[1] - 2)
-    print("Labels:")
-    for key, value in info["label"].items():
-        print(f"  {key}: {value}")
-    print("Dataset 1 created.")
+
+    print("Label: tissue_type")
+
+    for tissue_type in sorted(
+        train["tissue_type"].unique()
+    ):
+        print(
+            f"- {tissue_type}"
+        )
+
+    print(
+        "Dataset 1 created."
+    )
 
 
 if __name__ == "__main__":

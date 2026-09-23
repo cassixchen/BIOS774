@@ -4,7 +4,7 @@
 
 This project implements an AI agent that performs exploratory dimension-reduction analysis on unseen datasets with minimal human guidance.
 
-The system uses **Codex as the reasoning and orchestration agent** together with deterministic local Python tools. The agent inspects a dataset, selects appropriate preprocessing and dimension-reduction methods, chooses method settings, executes the analysis, evaluates the resulting embeddings, and generates a final report.
+The system uses Codex as the reasoning and orchestration agent together with deterministic local Python tools. The agent inspects a dataset, selects appropriate preprocessing and dimension-reduction methods, chooses method settings, executes the analysis, evaluates the resulting embeddings, and generates a final report.
 
 The available dimension-reduction methods are:
 
@@ -21,6 +21,8 @@ The agent selects methods based on the dataset and analysis objective rather tha
 
 
 ## Architecture
+
+The system is intended to be executed through Codex, which acts as the autonomous reasoning agent and invokes the repository's local Python analysis tools as needed.
 
 The analysis follows an iterative workflow:
 
@@ -85,16 +87,12 @@ Responsibilities are divided between:
 │   ├── run_umap.py
 │   └── evaluate_embeddings.py
 ├── data/
-│   ├── dataset_0/
 │   ├── dataset_1/
 │   └── dataset_2/
 ├── outputs/
 └── report/
-    └── report.tex
     └── report.pdf
 ```
-
-`dataset_0` is used for development and workflow testing.
 
 The two final evaluation datasets are:
 
@@ -117,23 +115,30 @@ The dataset contains:
 
 The training subset contains 500 observations from each class, and the evaluation subset contains 100 observations from each class.
 
-`tissue_type` is retained for post-hoc visualization and interpretation but is excluded from dimension-reduction fitting.
+`tissue_type` contains the PathMNIST tissue-class name and is retained for post-hoc visualization and qualitative interpretation but is excluded from preprocessing, dimension-reduction fitting, hyperparameter selection, and quantitative embedding evaluation.
+
+No scaling or other feature preprocessing is applied during dataset construction.
 
 ### Dataset 2: PBMC3K
 
-Dataset 2 is derived from the PBMC3K single-cell RNA-sequencing count matrix.
+Dataset 2 is derived from the PBMC3K single-cell RNA-sequencing count matrix. Each observation represents a cell, and each analysis feature represents the raw expression count for a selected gene.
 
-The original matrix contains 2,700 cells and 32,738 genes. Cells are split into 2,160 training cells and 540 evaluation cells before gene filtering and selection.
+The original matrix contains 2,700 cells and 32,738 genes. Cell-type annotations from the processed Seurat PBMC3K dataset are matched to the original cells using their cell barcodes. Of the 2,700 original cells, 2,638 have corresponding cell-type annotations and are retained for analysis. The remaining 62 cells are excluded.
 
-Genes detected in at least three training cells are retained as candidates. The 2,000 genes with the highest raw-count variance in the training data are then selected and used for both training and evaluation data.
+The 2,638 retained cells are split into training and evaluation sets using an 80/20 split with random seed 123.
+
+Genes detected in at least three training cells are retained as candidates. The 2,000 genes with the highest raw-count variance in the training data are then selected and used for both the training and evaluation data.
 
 The resulting dataset contains:
 
-- 2,160 training cells;
-- 540 evaluation cells;
-- 2,000 gene-expression features.
+- 2,110 training cells;
+- 528 evaluation cells;
+- 2,000 gene-expression features;
+- 9 cell types.
 
-The feature values remain raw counts during dataset construction. No cell-type labels are supplied.
+`cell_type` contains the Seurat cell-type annotation and is retained for post-hoc visualization and qualitative interpretation but is excluded from preprocessing, dimension-reduction fitting, hyperparameter selection, and quantitative embedding evaluation.
+
+The feature values remain raw nonnegative counts during dataset construction. No library-size normalization, log transformation, standardization, or other analysis preprocessing is applied during dataset construction.
 
 
 ## Installation
@@ -157,6 +162,26 @@ The agent uses the repository virtual environment for analysis commands.
 
 
 ## Running the Agent
+
+he generated `train.csv` and `eval.csv` files are not included in the repository and must first be created using the dataset construction scripts.
+
+From the repository root, run:
+
+```bash
+python3 data/dataset_1/create_dataset_1.py
+python3 data/dataset_2/create_dataset_2.py
+```
+
+These scripts create the training and evaluation datasets used by the agent:
+
+```text
+data/dataset_1/train.csv
+data/dataset_1/eval.csv
+data/dataset_2/train.csv
+data/dataset_2/eval.csv
+```
+
+After constructing the datasets, run **Codex from the repository root** and ask it to analyze the desired dataset (for example, `data/dataset_1` or `data/dataset_2`).
 
 The user provides a dataset directory, analysis objective, output directory, and requested report location. The agent determines the preprocessing, dimension-reduction methods, method settings, evaluation, and any necessary follow-up analysis.
 
@@ -223,4 +248,4 @@ Method settings, preprocessing choices, quantitative results, and relevant limit
 
 ## Project Report
 
-In addition to the autonomous dataset reports, `report/report.tex` or `report/report.pdf` contains the manually prepared project report describing the agent architecture, decision-making process, experimental results, strengths, and limitations.
+In addition to the autonomous dataset reports, `report/report.pdf` contains the manually prepared project report describing the agent architecture, decision-making process, experimental results, strengths, and limitations.

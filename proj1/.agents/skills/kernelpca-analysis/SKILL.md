@@ -8,8 +8,6 @@ Kernel PCA extends PCA by using a kernel to represent nonlinear relationships be
 
 ## When to Consider Kernel PCA
 
-## When to Consider Kernel PCA
-
 Consider Kernel PCA when:
 
 - nonlinear structure is plausible but a PCA-like representation is still useful;

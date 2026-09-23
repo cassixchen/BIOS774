@@ -2,5 +2,7 @@
     "id_columns": [
         "sample_id"
     ],
-    "label_columns": []
+    "label_columns": [
+        "cell_type"
+    ]
 }

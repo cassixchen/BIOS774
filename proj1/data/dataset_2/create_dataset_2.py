@@ -46,6 +46,10 @@ def main():
     matrix_path = raw_dir / "matrix.mtx"
     genes_path = raw_dir / "genes.tsv"
     barcodes_path = raw_dir / "barcodes.tsv"
+    annotations_path = (
+        data_dir / "cell_type_annotations.csv"
+    )
+
 
     counts = mmread(matrix_path).tocsr()
 
@@ -60,16 +64,80 @@ def main():
         barcodes_path,
         sep="\t",
         header=None,
-        names=["barcode"],
+        names=["sample_id"],
     )
 
-    print(
-        "Original matrix shape (genes x cells):",
-        counts.shape,
-    )
+    print("Original matrix shape (genes x cells):", counts.shape,)
 
-    # Convert from genes x cells to cells x genes.
+    # Convert genes x cells to cells x genes.
     counts = counts.T.tocsr()
+
+    print("Original number of cells:",counts.shape[0])
+
+
+    annotations = pd.read_csv(
+        annotations_path
+    )
+
+    if not {
+        "sample_id",
+        "cell_type",
+    }.issubset(annotations.columns):
+        raise ValueError(
+            "cell_type_annotations.csv must contain "
+            "'sample_id' and 'cell_type' columns."
+        )
+
+    if annotations["sample_id"].duplicated().any():
+        raise ValueError(
+            "Duplicate sample IDs found in annotation file."
+        )
+
+    annotation_map = dict(
+        zip(
+            annotations["sample_id"],
+            annotations["cell_type"],
+        )
+    )
+
+    # Match each raw cell barcode to its annotation.
+    cell_types = (
+        barcodes["sample_id"]
+        .map(annotation_map)
+    )
+
+    annotated_mask = (
+        cell_types.notna().to_numpy()
+    )
+
+    n_annotated = int(
+        annotated_mask.sum()
+    )
+
+    n_removed = int(
+        (~annotated_mask).sum()
+    )
+
+    print("Cells with annotations:", n_annotated)
+
+    print("Cells removed without annotations:", n_removed)
+
+    # Keep only cells represented in the processed
+    # Seurat PBMC3K annotation set.
+    counts = counts[
+        annotated_mask
+    ]
+
+    barcodes = (
+        barcodes.loc[annotated_mask]
+        .reset_index(drop=True)
+    )
+
+    cell_types = (
+        cell_types.loc[annotated_mask]
+        .reset_index(drop=True)
+    )
+
 
     n_cells = counts.shape[0]
 
@@ -82,48 +150,77 @@ def main():
     train_indices = indices[:n_train]
     eval_indices = indices[n_train:]
 
-    train_counts = counts[train_indices]
-    eval_counts = counts[eval_indices]
-
-    train_barcodes = barcodes.iloc[
+    train_counts = counts[
         train_indices
-    ].reset_index(drop=True)
+    ]
 
-    eval_barcodes = barcodes.iloc[
+    eval_counts = counts[
         eval_indices
-    ].reset_index(drop=True)
+    ]
 
-    # Filter genes using training data only.
+    train_barcodes = (
+        barcodes.iloc[train_indices]
+        .reset_index(drop=True)
+    )
+
+    eval_barcodes = (
+        barcodes.iloc[eval_indices]
+        .reset_index(drop=True)
+    )
+
+    train_labels = (
+        cell_types.iloc[train_indices]
+        .reset_index(drop=True)
+    )
+
+    eval_labels = (
+        cell_types.iloc[eval_indices]
+        .reset_index(drop=True)
+    )
+
+
     cells_per_gene = np.asarray(
         (train_counts > 0).sum(axis=0)
     ).ravel()
 
     keep = (
-        cells_per_gene >= MIN_CELLS_PER_GENE
+        cells_per_gene
+        >= MIN_CELLS_PER_GENE
     )
 
-    train_filtered = train_counts[:, keep]
-    eval_filtered = eval_counts[:, keep]
+    train_filtered = train_counts[
+        :, keep
+    ]
 
-    filtered_genes = genes.loc[
-        keep
-    ].reset_index(drop=True)
+    eval_filtered = eval_counts[
+        :, keep
+    ]
+
+    filtered_genes = (
+        genes.loc[keep]
+        .reset_index(drop=True)
+    )
 
     print(
-        "Genes after filtering:",
+        "Genes after training-only filtering:",
         train_filtered.shape[1],
     )
 
-    # Select highest-variance genes using training data only.
+
     means = np.asarray(
         train_filtered.mean(axis=0)
     ).ravel()
 
     squared_means = np.asarray(
-        train_filtered.power(2).mean(axis=0)
+        train_filtered
+        .power(2)
+        .mean(axis=0)
     ).ravel()
 
-    variances = squared_means - means**2
+    variances = (
+        squared_means
+        - means**2
+    )
 
     n_select = min(
         N_GENES,
@@ -142,13 +239,16 @@ def main():
         :, selected_indices
     ]
 
-    selected_genes = filtered_genes.iloc[
-        selected_indices
-    ].reset_index(drop=True)
+    selected_genes = (
+        filtered_genes
+        .iloc[selected_indices]
+        .reset_index(drop=True)
+    )
 
     feature_names = make_feature_names(
         selected_genes
     )
+
 
     train = pd.DataFrame(
         train_selected.toarray(),
@@ -163,14 +263,29 @@ def main():
     train.insert(
         0,
         "sample_id",
-        train_barcodes["barcode"].astype(str),
+        train_barcodes[
+            "sample_id"
+        ].astype(str),
     )
 
     eval_data.insert(
         0,
         "sample_id",
-        eval_barcodes["barcode"].astype(str),
+        eval_barcodes[
+            "sample_id"
+        ].astype(str),
     )
+
+    # Labels are retained for qualitative evaluation and
+    # visualization, but are not analysis features.
+    train["cell_type"] = (
+        train_labels.astype(str)
+    )
+
+    eval_data["cell_type"] = (
+        eval_labels.astype(str)
+    )
+
 
     train.to_csv(
         data_dir / "train.csv",
@@ -182,37 +297,57 @@ def main():
         index=False,
     )
 
-    selected_gene_table = selected_genes.copy()
-
-    selected_gene_table["feature_name"] = (
-        feature_names
+    selected_gene_table = (
+        selected_genes.copy()
     )
 
     selected_gene_table[
+        "feature_name"
+    ] = feature_names
+
+    selected_gene_table[
         "training_raw_variance"
-    ] = variances[selected_indices]
+    ] = variances[
+        selected_indices
+    ]
 
     selected_gene_table.to_csv(
         data_dir / "selected_genes.csv",
         index=False,
     )
 
+    # Tell the agent explicitly which column is the label.
     schema = {
         "id_columns": ["sample_id"],
-        "label_columns": [],
+        "label_columns": ["cell_type"],
     }
 
-    with open(data_dir / "schema.json", "w") as f:
+    with open(
+        data_dir / "schema.json",
+        "w",
+    ) as f:
         json.dump(
             schema,
             f,
             indent=4,
         )
 
-    print("Training shape (cells x genes):", train.shape)
-    print("Evaluation shape (cells x genes):", eval_data.shape)
+
+    print("Training shape (cells x columns):", train.shape,)
+
+    print("Evaluation shape (cells x columns):", eval_data.shape,)
+
     print("Analysis features (genes):", len(feature_names))
-    print("Labels: None")
+
+    print("Label: cell_type")
+    for cell_type in sorted(
+        pd.concat([
+            train["cell_type"],
+            eval_data["cell_type"],
+        ]).unique()
+    ):
+        print(f"- {cell_type}")
+
     print("Dataset 2 created.")
 
 

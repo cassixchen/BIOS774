@@ -1,18 +1,18 @@
 {
     "metric": "trustworthiness",
     "n_neighbors": 10,
-    "n_training_samples": 2160,
-    "n_evaluation_samples": 540,
+    "n_training_samples": 2110,
+    "n_evaluation_samples": 528,
     "methods": {
         "pca": {
             "preprocessing": "log_normalize",
-            "train_trustworthiness": 0.7889512145626625,
-            "eval_trustworthiness": 0.785039720368605
+            "train_trustworthiness": 0.7891067895039932,
+            "eval_trustworthiness": 0.7891622320768662
         },
         "umap": {
             "preprocessing": "log_normalize",
-            "train_trustworthiness": 0.7893502327228137,
-            "eval_trustworthiness": 0.7803558945027009
+            "train_trustworthiness": 0.7812697213080071,
+            "eval_trustworthiness": 0.7791973392461198
         }
     }
 }

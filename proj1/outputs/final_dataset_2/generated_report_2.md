@@ -1,105 +1,104 @@
 # Dataset 2: exploratory dimension-reduction analysis
 
-## Main findings
+## Findings
 
-Log-normalized gene expression shows broad structure in both PCA and UMAP, with similar broad regions in held-out cells. Two-dimensional PCA retains only **10.03%** of training variance; **881 components** are required to reach 90%. UMAP makes regions look more separated but does not materially improve the reported local-neighborhood preservation over PCA. These are exploratory representations, not validated cell populations or trajectories. Numerical warnings during projection and evaluation remain an important qualification.
+Log-normalized PCA and UMAP show broad expression structure that is qualitatively associated with the supplied cell-type annotations. PCA provides an interpretable linear baseline, but its first two components explain only **10.1154%** of training variation. UMAP emphasizes separated groups without improving the reported local-neighborhood preservation over PCA. Held-out UMAP cells form conspicuous peripheral rings rather than reproducing training densities, including in a targeted neighborhood sensitivity run. These are exploratory representations, not evidence establishing clusters, trajectories, or new cell identities.
+
+**Numerical qualification:** matrix-multiplication warnings persisted in PCA transformation and trustworthiness evaluation. The tools completed and produced usable coordinates and finite scores, but the warning cause remains unresolved. Quantitative comparisons should therefore be considered provisional, particularly small differences between methods.
 
 ## Data and inspection
 
-Input: `data/dataset_2`. All analysis outputs are in `outputs/final_dataset_2`. The analysis used the supplied repository tools and statistical skills, without modifying the inputs or creating additional analysis scripts.
+Input: `data/dataset_2`. All analysis outputs are in `outputs/final_dataset_2`. Decisions used `DATA.md`, `schema.json`, the repository skills, and the generated `data_profile.json`.
 
-The documentation describes PBMC3K single-cell expression counts, originally 2,700 cells and 32,738 genes. The supplied split contains 2,160 training cells and 540 evaluation cells (80/20, split seed 42). Gene selection was performed on training cells only: genes detected in at least three training cells were candidates, and the 2,000 highest raw-count-variance genes were retained in both splits. This selection is already part of the supplied dataset, not a new analysis result.
+The documentation describes 2,638 annotated PBMC3K cells, split into 2,110 training and 528 evaluation cells with split seed 123. Of the original 2,700 cells, 62 without matched annotations were excluded. Genes detected in at least three training cells were candidates; the 2,000 highest raw-count-variance genes were selected using training observations only. Thus these results concern an annotation-selected cell subset and a preselected gene representation, not the full original expression matrix.
 
-The schema identifies `sample_id` as a barcode identifier; it was excluded from features. There are no supplied labels, outcomes, or cell-type annotations.
+The supplied inspection tool profiles training data only:
 
-The training profile reports:
-
-| Property | Observed value |
+| Characteristic | Observed value |
 |---|---:|
-| Training cells | 2,160 |
+| Training cells | 2,110 |
 | Numeric gene features | 2,000 |
-| Categorical features | 0 |
+| Categorical input features | 0 |
 | Missing feature values | 0 |
-| Zero feature values | 3,200,262 (74.0801%) |
-| Minimum cell total | 392 |
-| Median cell total | 1,862 |
-| Mean cell total | 2,008.2347 |
-| Maximum cell total | 12,562 |
+| Zero feature values | 3,123,001 (74.0048%) |
+| Selected-gene counts per cell: minimum / median / maximum | 376 / 1,873.5 / 7,146 |
+| Mean selected-gene counts per cell | 2,014.8635 |
 
-Counts and feature scales vary substantially. For example, FTL has mean 28.3028, standard deviation 45.8667, and maximum 391; EZR has mean 0.2333, standard deviation 0.5343, and maximum 5. These examples illustrate scale differences, not evidence that either gene drives an embedding axis. The inspection tool profiles training data only; it does not produce a separate evaluation-data quality profile.
+Feature magnitudes also differ substantially: FTL has mean 28.0773 and standard deviation 45.4300, whereas NCBP2-AS2 has mean 0.1403 and standard deviation 0.5228. Documentation identifies these as raw counts, and the profile confirms nonnegative training values and positive training row totals.
 
-## Preprocessing and method selection
+`sample_id` was excluded as an identifier and `cell_type` as a label. Labels were used only by the plotting tools and for post-hoc qualitative interpretation; they were excluded from preprocessing, fitting, parameter selection, and quantitative evaluation.
 
-Every run explicitly used `--preprocessing log_normalize`: divide each cell's counts by its total across the **2,000 retained genes**, multiply by 10,000, and apply the natural-log transformation `log(1 + x)`. The raw-count documentation and approximately 32-fold range in observed cell totals support this choice. The log transformation reduces the influence of large counts while retaining zeros.
+## Preprocessing and methods
 
-`none` would leave strong differences in cell totals and large counts untreated. `standard` alone would equalize gene variances without correcting cell totals and could give sparse, low-count genes undue influence. No additional gene standardization, imputation, cell removal, or feature selection was performed. PCA centers the transformed features internally. Normalization uses each cell's own total and a fixed target, so it estimates no shared parameters from evaluation cells. Both fitted dimension-reduction models used training cells only and then transformed evaluation cells.
+Every run explicitly used `--preprocessing log_normalize`: divide each cell's counts by its selected-gene total, multiply by 10,000, and apply `log(1+x)`. The approximately 19-fold variation in row totals, count measurement scale, and large feature-magnitude differences support this choice. Raw counts would retain strong total-count effects; standardization alone would not normalize per-cell totals or compress large counts. No additional gene standardization or imputation was applied.
 
-| Method | Purpose | Settings |
-|---|---|---|
-| PCA | Linear baseline and assessment of variance retained | All available components fitted with the supplied `PCA()` implementation; first two saved |
-| UMAP | Complementary nonlinear view of local neighborhoods with evaluation transformation | 2 dimensions; 15 neighbors; minimum distance 0.1; Euclidean metric; random seed 123 |
+Normalization is cell-wise with a fixed target, so it estimates no cross-cell parameters from evaluation data. Its denominator uses only the 2,000 supplied genes, not full-transcriptome library size. It therefore measures relative expression within this subset and does not remove all technical variation or distinguish technical depth from biological RNA-content differences.
 
-UMAP used all 2,000 log-normalized features directly, not the two PCA coordinates. Its initial neighborhood size is the supplied default, a local scale relative to 2,160 training cells. Euclidean distance also matches the evaluator's reference distance. Minimum distance 0.1 and seed 123 were retained without tuning for visual separation. PCA's supplied script does not expose a random-seed argument.
+| Method | Rationale and settings |
+|---|---|
+| PCA | Global linear variance baseline. The supplied script fits all available components on training data, centers features, and saves PC1–PC2. Evaluation cells use the fitted training transformation. No randomized setting is exposed by this script. |
+| UMAP | Complementary nonlinear neighborhood visualization with out-of-sample transformation. Two dimensions, 15 neighbors, minimum distance 0.1, Euclidean distance, random seed 123. Applied directly to all 2,000 log-normalized features. |
+| UMAP follow-up | Increased neighbors to 30, keeping all other settings fixed, to assess sensitivity of separated groups and the unusual held-out peripheral geometry. Saved separately in `followup_umap_30`. |
+
+The initial UMAP defaults were a reasonable local scale for 2,110 observations. Euclidean distance also matches the evaluation reference metric. The follow-up doubled the neighborhood size without searching for label separation. Models were fitted only on training data; evaluation embeddings were transformations, not independent fits.
 
 Other available methods were considered but not run:
 
-- **Kernel PCA:** no specific kernel or bandwidth is justified by the documentation; it would add a similarity assumption without ordinary PCA's variance interpretation.
-- **MDS:** global pairwise-distance reproduction is not the principal objective; its optimization adds cost and the supplied implementation cannot transform evaluation cells.
-- **Isomap:** there is no established connected manifold whose geodesic distances should be preserved; sparse, noisy counts make that assumption uncertain.
-- **LLE:** local linear reconstruction is not established for these data.
-- **Laplacian Eigenmaps:** overlaps with the neighborhood objective of UMAP but lacks evaluation transformation in this workflow.
-- **t-SNE:** offers another local visualization but cannot transform evaluation cells in the supplied workflow; UMAP already addresses the local visualization objective.
+- **Kernel PCA:** no specific kernel similarity or bandwidth was justified; UMAP already supplied a nonlinear view.
+- **MDS:** preservation of all pairwise distances was not the primary objective, and the supplied implementation lacks evaluation transformation.
+- **Isomap:** no evidence supported a reliable connected manifold with meaningful geodesic distances for this sparse count representation.
+- **LLE:** a locally linear reconstruction assumption was not established.
+- **Laplacian Eigenmaps:** overlaps the local-graph objective of UMAP but lacks evaluation transformation here.
+- **t-SNE:** a reasonable local visualization alternative, but UMAP meets that objective while supporting the held-out split.
 
 ## Quantitative evaluation
 
-The supplied evaluator computed trustworthiness at **10 neighbors**, separately within training and evaluation sets, using the same log-normalized feature representation for every method. Higher values indicate fewer strongly misplaced neighbors in the embedding. Trustworthiness is not a percentage of correctly recovered neighbors and does not measure global distance fidelity or cluster validity.
+The repository evaluator assessed only generated embeddings, using **10-neighbor trustworthiness** against the same log-normalized 2,000-feature representation. Labels were not involved. Training and evaluation scores were computed separately within each split; evaluation trustworthiness does not measure evaluation-to-training neighbor accuracy. Scores are rank-based neighborhood measures, not percentages of correctly classified cells or fractions of variance retained.
 
 | Representation | Training trustworthiness | Evaluation trustworthiness |
 |---|---:|---:|
-| PCA, first two components | 0.788951 | 0.785040 |
-| UMAP, 15 neighbors | 0.789350 | 0.780356 |
-| UMAP, 30 neighbors (follow-up) | 0.787554 | 0.781780 |
+| PCA, PC1–PC2 | 0.789107 | 0.789162 |
+| UMAP, 15 neighbors | 0.781270 | 0.779197 |
+| UMAP, 30 neighbors | 0.782993 | 0.781734 |
 
-The scores offer no compelling advantage for the visually more separated UMAP map. PCA and UMAP serve complementary purposes; neither is selected as an overall winner. Evaluation scores use neighbors among the 540 evaluation cells, not evaluation-to-training neighbor matching. Different sample sizes and neighborhood scales limit direct interpretation of train–evaluation differences. No confidence intervals or significance tests were produced.
+PCA explains 7.4617% in PC1 and 2.6537% in PC2, totaling 10.1154%; **873 components** are required to reach 90% of training variance. Thus broad visible separation coexists with substantial variation outside the two-dimensional plot. The 873-component result does not establish biological intrinsic dimension because expression noise also contributes variance.
 
-PCA explains **7.4022%** of variance with PC1 and **2.6322%** with PC2, totaling **10.0345%**. Reaching 90% requires **881 components**. Thus the two-dimensional plot captures major directions but omits most feature variation; it should not substitute for a richer representation in downstream analysis.
+PCA has slightly higher reported trustworthiness, while UMAP's broader neighborhood changes scores only modestly. Neither method preserves neighborhoods nearly perfectly. Similar training/evaluation scores are encouraging within this split but do not establish external generalization. No uncertainty intervals or significance tests are provided by these tools, and the numerical warnings further limit ranking interpretations.
 
-## Visual interpretation
+## Visual findings
 
-The training PCA plot shows a dense region at negative PC1 with an upward extension, another lower region at negative PC2, and an elongated region at positive PC1. Sparse observations lie between these regions. Held-out cells occupy broadly similar areas under the training-fitted projection. These observations describe geometry only; no gene loadings or cell identities were inferred.
+All six generated plots were inspected. **Colors change between training and evaluation plots** because the supplied plotting function assigns colors in label encounter order; compare legend names rather than matching colors. Plot axes are also independently scaled.
 
-The 15-neighbor UMAP training plot shows a large elongated region with a smaller attached lobe, a clearly separated compact region, and an isolated plotted point. Evaluation cells occupy corresponding broad locations but form conspicuous hollow outlines rather than filling the training regions. This train–transform discrepancy limits density interpretation: the outlines do not establish biological rings, trajectories, or empty states. Likewise, distances between UMAP regions are not calibrated expression distances, and the isolated point is not evidence of a rare cell type.
+PCA shows a broad positive-PC1 region containing most annotated monocytes, with FCGR3A+ Mono tending toward higher PC2 than CD14+ Mono. B annotations occupy a lower-PC2 region. Naive CD4 T, Memory CD4 T, CD8 T, and NK annotations occupy overlapping portions of an extended region, with NK tending toward its high-PC2 end. The evaluation plot broadly reproduces these patterns. Sparse DC and Platelet annotations do not justify confident subgroup conclusions.
 
-Training and evaluation plots use independently chosen axis limits. Visual density is also affected by unequal sample sizes and point overlap. There was no formal observation-level correspondence analysis between PCA and UMAP regions.
+![PCA training](pca_train_2d.png)
 
-## Targeted follow-up
+![PCA evaluation](pca_eval_2d.png)
 
-The separated UMAP regions, isolated plotted point, and hollow evaluation outlines motivated one sensitivity check: increase `n_neighbors` from 15 to 30, keeping preprocessing, dimensionality, minimum distance, metric, and seed fixed. Outputs were saved separately in `followup_umap_n30`, and the supplied evaluator was rerun there at 10 neighbors.
+At 15 neighbors, UMAP shows a monocyte/DC-rich group, a B-rich group, and a larger overlapping T/NK-rich region. Some Platelet annotations occupy a distant compact location, while others lie near larger groups. Apparent compactness and empty space should not be interpreted as biological homogeneity or quantitative between-group distances.
 
-At 30 neighbors, training trustworthiness is **0.787554** and evaluation trustworthiness is **0.781780**. The broad visual arrangement remains: one large region with a smaller lobe, a separated region, and an isolated plotted point. The large region changes orientation and shape, while hollow evaluation outlines persist. This supports only qualitative stability of broad appearance across these two neighborhood settings; it does not establish stable cell membership or quantify alignment between runs. Increasing the neighborhood size did not resolve the train–evaluation density discrepancy or meaningfully alter the overall evaluation conclusion. The follow-up evaluator emitted the same matrix-multiplication warnings.
+Held-out observations map to broadly corresponding regions but trace rings or edges around dense training groups. This discrepancy limits interpretation of held-out density, holes, and fine local arrangement; the display does not support a biological cycle. Its cause cannot be established from the supplied outputs.
 
-No additional seed sweep, metric search, or tuning for clearer separation was performed. The 15-neighbor run remains the documented baseline rather than replacing it based on a small score difference.
+![UMAP training](umap_train_2d.png)
 
-## Warnings and limitations
+![UMAP evaluation](umap_eval_2d.png)
 
-Initial PCA and UMAP invocations terminated with exit status 134 before completing plots. Rerunning the unmodified tools with `MPLBACKEND=Agg` completed successfully. The completed runs also set `VECLIB_MAXIMUM_THREADS=1`, `OPENBLAS_NUM_THREADS=1`, and `OMP_NUM_THREADS=1`. Matplotlib reported an unwritable default cache and used temporary caches; this was an environment warning rather than a reported data error.
+With 30 neighbors, the broad annotation-associated grouping remains, but relative placement and spacing change substantially. The peripheral held-out pattern persists. This supports retaining only broad qualitative observations across these two settings, not fixed global geometry or stable fine substructure. Only one seed and one alternative neighborhood size were investigated.
 
-PCA evaluation transformation and the trustworthiness evaluator emitted divide-by-zero, overflow, and invalid-value warnings in matrix multiplication. Single-threaded reruns did **not** eliminate them. The saved baseline embeddings have the expected row counts and no textual NaN, infinity, or empty coordinate fields; plots and finite evaluation scores were produced. However, successful output alone does not prove numerical accuracy. The cause remains unresolved within the supplied-tool workflow, so exact projection and trustworthiness values should be treated as provisional rather than fully numerically validated. Warnings were not suppressed. UMAP also warned that fixing the random seed forces single-thread execution; that warning concerns reproducibility and speed.
+![UMAP 30-neighbor training](followup_umap_30/umap_train_2d.png)
 
-Normalization totals refer only to retained genes, not complete transcriptome library sizes. Selection by raw-count variance can favor abundant or depth-associated genes, and this analysis cannot recover information from omitted genes. Sparse counts, technical variation, and composition effects may remain after normalization. The supplied tools do not provide marker-gene testing, PCA loading export, doublet detection, mitochondrial-quality assessment, batch adjustment, or quantitative embedding-stability analysis; none was implemented during this run. No cell types, cluster counts, differential expression, or biological trajectories are established.
+![UMAP 30-neighbor evaluation](followup_umap_30/umap_eval_2d.png)
 
-The evaluation split comes from the same source dataset and supports only within-dataset assessment, not generalization to new donors, batches, or studies.
+## Warnings, limitations, and reproducibility
 
-## Output guide
+Initial PCA and UMAP attempts wrote coordinates but terminated with exit code 134 before producing figures. Rerunning the same supplied scripts with `MPLBACKEND=Agg` completed successfully. Final runs also set `VECLIB_MAXIMUM_THREADS=1` and `OPENBLAS_NUM_THREADS=1`; these did **not** eliminate matrix-multiplication divide-by-zero, overflow, and invalid-value warnings in PCA evaluation transformation and the evaluator's distance computations. The baseline evaluator was rerun after final embeddings were saved and returned identical scores.
 
-All six generated plots were visually inspected:
+Investigation included reviewing preprocessing and transformation code, inspecting the plots, and checking the saved baseline coordinate files for blank/NaN/Inf fields and expected row counts (2,110 training and 528 evaluation). No such malformed coordinate fields were found, and evaluation completed rather than rejecting nonfinite input. These observations do not establish that intermediate distance calculations were unaffected. No warnings were suppressed, and no alternative numerical implementation was introduced under the repository's supplied-tools-only constraint.
 
-| Analysis | Training plot | Evaluation plot |
-|---|---|---|
-| PCA | [Training PCA](/Users/cassixchen/Desktop/unc/BIOS774/proj1/outputs/final_dataset_2/pca_train_2d.png) | [Evaluation PCA](/Users/cassixchen/Desktop/unc/BIOS774/proj1/outputs/final_dataset_2/pca_eval_2d.png) |
-| UMAP, 15 neighbors | [Training UMAP](/Users/cassixchen/Desktop/unc/BIOS774/proj1/outputs/final_dataset_2/umap_train_2d.png) | [Evaluation UMAP](/Users/cassixchen/Desktop/unc/BIOS774/proj1/outputs/final_dataset_2/umap_eval_2d.png) |
-| UMAP, 30 neighbors | [Training follow-up](/Users/cassixchen/Desktop/unc/BIOS774/proj1/outputs/final_dataset_2/followup_umap_n30/umap_train_2d.png) | [Evaluation follow-up](/Users/cassixchen/Desktop/unc/BIOS774/proj1/outputs/final_dataset_2/followup_umap_n30/umap_eval_2d.png) |
+Matplotlib used temporary font caches because its default cache directory was unwritable. UMAP warned that a fixed seed forces single-job execution; this is a reproducibility/performance notice. An initial aborted process also reported a leaked semaphore at shutdown. These operational notices are distinct from the unresolved numerical warnings.
 
-The [data profile](/Users/cassixchen/Desktop/unc/BIOS774/proj1/outputs/final_dataset_2/data_profile.json) contains the training summaries. [PCA metrics](/Users/cassixchen/Desktop/unc/BIOS774/proj1/outputs/final_dataset_2/pca_metrics.json) contain the complete explained-variance spectrum. [Baseline evaluation](/Users/cassixchen/Desktop/unc/BIOS774/proj1/outputs/final_dataset_2/embedding_evaluation.json) and [follow-up evaluation](/Users/cassixchen/Desktop/unc/BIOS774/proj1/outputs/final_dataset_2/followup_umap_n30/embedding_evaluation.json) contain the reported trustworthiness values. Each UMAP directory has its settings in `umap_metrics.json`.
+The inspection tool does not generate a separate evaluation-data profile. Supplied tools also do not provide marker-gene validation, batch-effect or cell-quality diagnostics, PCA loadings reports, or quantitative train-to-evaluation mapping diagnostics. None were added. The supplied annotations are contextual labels, not independent biological validation. Feature selection by raw-count variance may emphasize abundant genes; that selection was retained as documented.
 
-Embedding CSVs contain 2,160 training rows or 540 evaluation rows, plus a header, and two coordinates per observation. The supplied tools omit identifiers from these files; rows correspond to the original input row order and must be joined to barcodes by that order. The tools save settings and coordinates but do not serialize fitted model objects. No unsupported biological identities were assigned.
+All computation used `.venv/bin/python3` and the supplied inspection, PCA, UMAP, and embedding-evaluation scripts. No packages were installed and input data were not modified. Metrics JSON files retain preprocessing and important method settings. Embedding CSVs contain coordinates in source row order, without identifiers; join them to the corresponding input by row order if needed.
+
+The output directory contains `data_profile.json`, PCA and UMAP metrics, training/evaluation coordinate CSVs and PNGs, and `embedding_evaluation.json`. The follow-up directory contains the corresponding UMAP files and its own evaluation JSON. These outputs support using PCA for a qualified variance summary and UMAP for broad exploratory grouping, while retaining explicit uncertainty about numerical diagnostics and held-out UMAP geometry.
