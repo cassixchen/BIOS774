@@ -1,0 +1,21 @@
+{
+  "decision": "GENERATIVE_APPROPRIATE",
+  "objective": "Generate realistic synthetic histopathology images for exploratory analysis.",
+  "task": "unconditional image generation",
+  "rationale": "Explicit generation objective; 4500 finite RGB training images support a modest convolutional baseline and adversarial comparator.",
+  "success_criteria": [
+    "finite RGB samples in [0,1]",
+    "plausible tissue texture by visual inspection",
+    "color and spatial variation comparable to real data",
+    "diversity without clear collapse",
+    "no obvious training copies"
+  ],
+  "baseline": "Real training image statistics and diversity; held-out-to-training nearest-neighbor distance.",
+  "constraints": [
+    "28x28 resolution",
+    "CPU only in sandbox",
+    "no tissue labels used for fitting or selection",
+    "no clinical or downstream utility claims"
+  ],
+  "next_action": "Smoke test VAE and GAN, then fixed-budget training and final evaluation."
+}

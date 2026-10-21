@@ -1,0 +1,28 @@
+{
+  "modality": "scrna",
+  "num_train": 2110,
+  "num_evaluation": 528,
+  "num_synthetic": 32,
+  "num_genes": 2000,
+  "real_summary": {
+    "mean_library_size": 2014.8635071090048,
+    "median_library_size": 1873.5,
+    "mean_detected_genes_per_cell": 519.9047393364929,
+    "zero_fraction": 0.7400476303317536,
+    "mean_gene_count": 1.0074317535545023
+  },
+  "synthetic_summary": {
+    "mean_library_size": 2031.125,
+    "median_library_size": 1913.5,
+    "mean_detected_genes_per_cell": 867.375,
+    "zero_fraction": 0.5663125,
+    "mean_gene_count": 1.0155625
+  },
+  "mean_abs_gene_expression_difference": 0.6612610253290399,
+  "mean_abs_gene_detection_difference": 0.24342671800947868,
+  "real_mean_pairwise_distance": 1.1027039372521728,
+  "synthetic_mean_pairwise_distance": 1.6957047169341315,
+  "synthetic_to_train_nn_mean": 1.522866915882975,
+  "synthetic_to_train_nn_min": 1.4487442000083002,
+  "eval_to_train_nn_mean": 0.9401700219090481
+}

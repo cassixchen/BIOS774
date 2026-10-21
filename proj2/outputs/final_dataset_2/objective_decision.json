@@ -1,0 +1,20 @@
+{
+  "decision": "GENERATIVE_APPROPRIATE",
+  "objective": "Generate synthetic single-cell RNA-seq profiles for exploratory analysis.",
+  "task": "Unconditional count profile generation",
+  "rationale": "Explicit synthesis objective; sparse raw counts support a negative-binomial latent model. Exploratory plausibility must be evaluated, not assumed.",
+  "success_criteria": [
+    "Finite nonnegative integer counts with original gene order",
+    "Approximate real library sizes, sparsity, detection and expression",
+    "Diversity comparable to real data; assess nearest-neighbor distances"
+  ],
+  "baseline": "Real training summaries and held-out-to-training nearest-neighbor distances supplied by evaluator",
+  "constraints": [
+    "No label conditioning",
+    "Train-only model fitting",
+    "Evaluation split reserved for diagnostics, not tuning",
+    "CPU fallback",
+    "Existing scripts only"
+  ],
+  "next_action": "Smoke-test then fixed 100-epoch count VAE and evaluate."
+}

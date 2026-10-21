@@ -1,0 +1,51 @@
+{
+  "selected_models": {
+    "vae": {
+      "reason": "Efficient stable convolutional latent baseline; reconstruction objective may blur fine texture.",
+      "epochs": 30,
+      "latent_dim": 32,
+      "beta": 1.0,
+      "learning_rate": 0.001,
+      "batch_size": 64
+    },
+    "gan": {
+      "reason": "Convolutional adversarial comparator targets sharper texture; monitor diversity and stability.",
+      "epochs": 30,
+      "latent_dim": 64,
+      "learning_rate": 0.0002,
+      "batch_size": 64
+    }
+  },
+  "preprocessing": {
+    "cli": "none",
+    "vae": "reshape interleaved RGB to CHW; divide pixels by 255",
+    "gan": "reshape interleaved RGB to CHW; divide pixels by 127.5 and subtract 1",
+    "rationale": "Preserve RGB ordering and staining; fixed scaling requires no learned fit. Exclude sample_id and tissue_type."
+  },
+  "seed": 20261020,
+  "num_samples": 256,
+  "smoke_test": {
+    "epochs": 1,
+    "num_samples": 16,
+    "separate_directories": true
+  },
+  "device": "cpu",
+  "rejected_alternatives": {
+    "flow": "Supplied image flow operates on truncated PCA representation, limiting fine tissue texture and full-image likelihood interpretation.",
+    "diffusion": "Iterative denoising and sampling cost on CPU; prioritize two cheaper complementary convolutional models rather than a shallow undertrained diffusion run."
+  },
+  "evaluation_plan": [
+    "evaluate_generation.py after fixed budgets",
+    "finite/range/shape checks",
+    "visual synthetic grids versus real examples",
+    "8 color/texture means, pixel pairwise diversity, sampled training nearest neighbors",
+    "no held-out hyperparameter selection; VAE script computes eval loss each epoch but no checkpoint selection or early stopping"
+  ],
+  "follow_up_rule": "Only one small follow-up if a specific fix is supported; do not tune repeatedly on held-out metrics.",
+  "follow_up_decision": {
+    "action": "No additional training",
+    "rationale": "The planned GAN already addresses the observed VAE smoothing and improves texture and diversity. Residual grid artifacts and unverified morphology require architecture or domain evaluation capabilities beyond the permitted scripts; additional epochs or a small parameter tweak has no demonstrated remedy. Avoid repeated selection on evaluation data.",
+    "recommendation": "IMPROVE_MODEL",
+    "preferred_prototype": "gan"
+  }
+}

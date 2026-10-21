@@ -1,0 +1,37 @@
+{
+  "selected_models": [
+    "negative_binomial_vae"
+  ],
+  "preprocessing": {
+    "encoder": "log_normalize",
+    "target_sum": 10000,
+    "reconstruction": "raw_counts",
+    "identifiers": "excluded",
+    "labels": "excluded",
+    "gene_order": "training CSV order; evaluation aligned by gene name"
+  },
+  "settings": {
+    "epochs": 100,
+    "batch_size": 128,
+    "hidden_dim": 128,
+    "latent_dim": 16,
+    "learning_rate": 0.001,
+    "beta": 1.0,
+    "seed": 123,
+    "num_samples": 528,
+    "device": "cpu"
+  },
+  "rationale": "Small dataset and sparse overdispersed counts favor a compact count-likelihood baseline with regularized latent representation. Fixed training budget; no evaluation-driven selection.",
+  "rejected_alternatives": {
+    "GAN": "Instability and mode-collapse risk with small n; continuous output/count conversion less appropriate.",
+    "flow": "Continuous density and heuristic count conversion less aligned with raw counts.",
+    "diffusion": "Higher training/sampling cost and continuous/count conversion; no demonstrated need over count VAE."
+  },
+  "evaluation_plan": [
+    "Finite nonnegative integer counts with original gene order",
+    "Approximate real library sizes, sparsity, detection and expression",
+    "Diversity comparable to real data; assess nearest-neighbor distances",
+    "Use evaluator real-data baselines; do not claim cell-type fidelity or downstream utility."
+  ],
+  "follow_up_policy": "Only a targeted follow-up if numerical/training failure or clearly unresolved training trend warrants it; do not tune repeatedly on evaluation data."
+}

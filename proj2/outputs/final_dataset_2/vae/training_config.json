@@ -1,0 +1,21 @@
+{
+  "modality": "scrna",
+  "data_dir": "data/dataset_2",
+  "output_dir": "outputs/final_dataset_2/vae",
+  "epochs": 100,
+  "batch_size": 128,
+  "latent_dim": 16,
+  "hidden_dim": 128,
+  "learning_rate": 0.001,
+  "beta": 1.0,
+  "num_samples": 528,
+  "preprocessing": "log_normalize",
+  "seed": 123,
+  "device": "cpu",
+  "n_train": 2110,
+  "n_eval": 528,
+  "n_genes": 2000,
+  "encoder_preprocessing": "log_normalize",
+  "reconstruction_target": "raw_counts",
+  "library_size_generation": "resample_training_library_sizes"
+}

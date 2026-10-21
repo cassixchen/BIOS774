@@ -1,0 +1,15 @@
+{
+  "modality": "image",
+  "data_dir": "data/dataset_1",
+  "output_dir": "outputs/final_dataset_1/smoke_gan",
+  "epochs": 1,
+  "batch_size": 64,
+  "latent_dim": 64,
+  "hidden_dim": 256,
+  "learning_rate": 0.0002,
+  "num_samples": 16,
+  "preprocessing": "none",
+  "seed": 20261020,
+  "device": "cpu",
+  "n_train": 4500
+}

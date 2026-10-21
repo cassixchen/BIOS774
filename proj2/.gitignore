@@ -1,0 +1,31 @@
+# Python environment
+.venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+.vscode
+
+# LaTeX temporary files
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Raw downloaded datasets
+data/*/raw/
+
+# Generated dataset tables
+data/*/train.csv
+data/*/eval.csv
+
+# Development outputs
+outputs/dataset_1
+outputs/dataset_2
+data/dataset_0/
+report/report.texgit
+report/report.tex
