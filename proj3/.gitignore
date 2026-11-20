@@ -15,6 +15,7 @@ __pycache__/
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+/report/*.tex
 
 # Ignore all raw dataset files
 /data/*
