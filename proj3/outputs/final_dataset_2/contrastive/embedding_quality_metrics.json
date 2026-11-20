@@ -1,0 +1,18 @@
+{
+  "n_paired_samples": 1097,
+  "positive_cosine_mean": 0.5485936737744563,
+  "positive_cosine_std": 0.1524326933566794,
+  "negative_cosine_mean": 0.05061388298123283,
+  "negative_cosine_std": 0.34852970012097906,
+  "positive_negative_cosine_gap": 0.4979797907932235,
+  "positive_vs_negative_pairwise_auc_estimate": 0.9015,
+  "alignment_mean_squared_distance": 0.9028126524510873,
+  "uniformity_mod1": -2.5348730907006782,
+  "uniformity_mod2": -2.392429166401675,
+  "effective_rank_mod1": 9.889910871648832,
+  "effective_rank_mod2": 9.198118261205467,
+  "embedding_dimension": 32,
+  "uniformity_and_auc_sampled_pairs": 100000,
+  "random_seed": 42,
+  "interpretation": "Cosine scores and alignment are cross-modal; uniformity and effective rank are within-modality. Low alignment, lower uniformity, and higher effective rank can be favorable but are not standalone proof of semantic quality."
+}

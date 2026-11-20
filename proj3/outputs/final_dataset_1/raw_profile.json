@@ -1,0 +1,53 @@
+{
+  "dataset": "ROCOv2",
+  "source": "data/dataset_1",
+  "paired_by": "image ID and caption",
+  "inspection_sample_size_limit": 1000,
+  "train": {
+    "caption_rows": 59958,
+    "complete_pairs": 59958,
+    "unique_ids": 59958,
+    "sampled_caption_words": {
+      "median": 18.0,
+      "p10": 7.0,
+      "p90": 39.0,
+      "max": 184.0
+    },
+    "sampled_empty_captions": 0,
+    "sampled_unique_caption_fraction": 1.0
+  },
+  "valid": {
+    "caption_rows": 9904,
+    "complete_pairs": 9904,
+    "unique_ids": 9904,
+    "sampled_caption_words": {
+      "median": 18.0,
+      "p10": 7.0,
+      "p90": 42.0,
+      "max": 204.0
+    },
+    "sampled_empty_captions": 1,
+    "sampled_unique_caption_fraction": 1.0
+  },
+  "supported_preprocessing": {
+    "image_encoder": [
+      "resnet18",
+      "color-histogram"
+    ],
+    "text_vectorizer": [
+      "tfidf",
+      "hashing"
+    ],
+    "text_components": "configurable positive integer (SVD)",
+    "text_max_features": "configurable for TF-IDF",
+    "text_ngram_max": [
+      1,
+      2
+    ]
+  },
+  "decision_guidance": [
+    "Use ResNet18 for semantic image features when weights are cached or available; color-histogram is a low-cost nonsemantic baseline.",
+    "Use TF-IDF for interpretable train-fitted vocabulary; hashing for fixed-memory vocabulary-free features.",
+    "Choose SVD dimension and n-grams based on caption lengths, sample size and compute budget."
+  ]
+}

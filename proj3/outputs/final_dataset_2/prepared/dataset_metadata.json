@@ -1,0 +1,65 @@
+{
+  "dataset": "10x Genomics 10k PBMC Multiome",
+  "source": "data/dataset_2/filtered_feature_bc_matrix.h5",
+  "train_rows": 8776,
+  "eval_rows": 1097,
+  "validation_rows": 1097,
+  "paired_by": "cell barcode",
+  "has_cell_type_labels": false,
+  "rna_features_selected": 2000,
+  "atac_peaks_selected": 12000,
+  "rna_components": 64,
+  "atac_components": 64,
+  "rna_normalization": "library-log1p",
+  "rna_feature_selection": "variance",
+  "atac_feature_selection": "frequency",
+  "atac_transform": "binary-tfidf",
+  "selection_and_fitting": "train only",
+  "svd_diagnostics": {
+    "RNA": {
+      "selected_algorithm": "arpack",
+      "attempts": [
+        {
+          "algorithm": "randomized",
+          "runtime_warnings": [
+            "divide by zero encountered in matmul",
+            "overflow encountered in matmul",
+            "invalid value encountered in matmul"
+          ],
+          "finite_outputs": true
+        },
+        {
+          "algorithm": "arpack",
+          "runtime_warnings": [],
+          "finite_outputs": true
+        }
+      ],
+      "explained_variance_ratio_sum": 0.2398420733647974
+    },
+    "ATAC": {
+      "selected_algorithm": "arpack",
+      "attempts": [
+        {
+          "algorithm": "randomized",
+          "runtime_warnings": [
+            "divide by zero encountered in matmul",
+            "overflow encountered in matmul",
+            "invalid value encountered in matmul"
+          ],
+          "finite_outputs": true
+        },
+        {
+          "algorithm": "arpack",
+          "runtime_warnings": [],
+          "finite_outputs": true
+        }
+      ],
+      "explained_variance_ratio_sum": 0.1926282663966714
+    }
+  },
+  "seed": 42,
+  "limitations": [
+    "No ground-truth cell-type labels in this file",
+    "RNA/ATAC SVD features are fixed before neural representation learning"
+  ]
+}

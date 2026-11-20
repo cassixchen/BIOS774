@@ -1,0 +1,33 @@
+# Python environment
+.venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+.vscode
+
+# LaTeX temporary files
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Ignore all raw dataset files
+/data/*
+
+# Keep dataset directories
+!/data/dataset_1/
+!/data/dataset_2/
+
+# Ignore contents of each directory
+/data/dataset_1/*
+/data/dataset_2/*
+
+# Allow placeholder files
+!/data/dataset_1/.gitkeep
+!/data/dataset_2/.gitkeep
+

@@ -1,0 +1,9 @@
+{
+  "seed": 42,
+  "inner_train_rows": 8000,
+  "validation_rows": 1000,
+  "final_training_rows": 8000,
+  "selection_metric": "mean bidirectional Recall@5",
+  "validation_isolation": "upstream train-only fitted validation",
+  "test_used_for_selection": false
+}

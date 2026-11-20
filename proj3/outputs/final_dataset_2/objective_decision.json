@@ -1,0 +1,7 @@
+{
+  "objective": "Learn informative representations of paired RNA expression and chromatin accessibility; assess paired cross-modal retrieval as a measurable proxy for relationships, without claiming it exhausts biological utility.",
+  "data": "10x PBMC Multiome; aligned cell barcode pairs, no genuine cell-type labels.",
+  "task": "paired retrieval and exploratory representation learning",
+  "selection": "Mean of RNA-to-ATAC and ATAC-to-RNA Recall@5 on the same 1097-cell validation split only; held-out test reserved for winner after selection. Random ranking Recall@5 is 5/1097.",
+  "limitations": "Matching same cell may treat biologically similar cells as false negatives; retrieval does not establish biological validity."
+}

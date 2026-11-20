@@ -1,0 +1,16 @@
+{
+  "method": "contrastive",
+  "objective_description": "symmetric InfoNCE on paired modality embeddings",
+  "encoder1": "mlp",
+  "encoder2": "mlp",
+  "epochs": 25,
+  "batch_size": 128,
+  "latent_dim": 64,
+  "seed": 42,
+  "device": "mps",
+  "dimensions": [
+    512,
+    128
+  ],
+  "classes": 0
+}

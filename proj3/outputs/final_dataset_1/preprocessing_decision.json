@@ -1,0 +1,43 @@
+{
+  "objective": "Learn representations capturing relationships between medical images and associated captions; fixed image and text features will support subsequent paired representation learning.",
+  "inspection": {
+    "profile": "outputs/final_dataset_1/raw_profile.json",
+    "command": "python analysis/inspect_raw.py --source data/dataset_1 --kind rocov2 --output outputs/final_dataset_1/raw_profile.json --seed 42",
+    "measurements": "Official train: 59,958 complete pairs and unique IDs; official validation: 9,904 complete pairs and unique IDs. Among up to 1,000 sampled per split, training caption word median 18, p10 7, p90 39; validation median 18, p10 7, p90 42. Sampled empty captions: 0 train, 1 validation. Unique caption fraction 1.0 in each sample. These are inspection samples, not a guarantee for all captions."
+  },
+  "configurations": [
+    {
+      "name": "selected",
+      "image": "Frozen ImageNet-pretrained ResNet18 with its pretrained image transforms and 512-dimensional output; no additional image dimension reduction. Semantic-oriented features fit image-caption relationships better than color alone, though ImageNet features are not radiology-specific.",
+      "text": "Training-fitted TF-IDF, English stop words, min_df=2, up to 12,000 unigram and bigram features, then training-fitted 128-component truncated SVD. Median 18-word captions can contain useful multiword terms; the vocabulary cap and SVD bound memory and output dimensionality for 8,000 training examples. Counts are pragmatic capacity choices, not benchmarked optima.",
+      "compute": "Higher image inference cost on host MPS; sparse TF-IDF and SVD add CPU and memory cost."
+    },
+    {
+      "name": "lower-cost alternative",
+      "image": "96-dimensional RGB color histogram, resized to 128x128; no semantic image encoder.",
+      "text": "Hashing with 12,000 bins, unigram-only features and 128-component training-fitted SVD; fixed feature space avoids vocabulary fitting but admits collisions and loses term interpretability.",
+      "compute": "Cheaper CPU image extraction and smaller image features; loses spatial and semantic information relevant to medical image-caption relationships."
+    }
+  ],
+  "selected_parameters": {
+    "train_size": 8000,
+    "validation_size": 1000,
+    "eval_size": 1000,
+    "seed": 42,
+    "device": "mps",
+    "batch_size": 32,
+    "image_encoder": "resnet18",
+    "text_vectorizer": "tfidf",
+    "text_max_features": 12000,
+    "text_components": 128,
+    "text_ngram_max": 2
+  },
+  "rejected_alternatives": [
+    "Color histograms discard image structure and semantics, despite low cost.",
+    "Hashing avoids vocabulary storage but has collisions and reduced interpretability; the inspected corpus and requested 8,000 training rows support capped TF-IDF.",
+    "Unigram-only TF-IDF is cheaper but may miss multiword medical terms; bigrams are bounded by the feature cap. None of these alternatives was benchmarked."
+  ],
+  "split_and_leakage": "Sample 9,000 distinct IDs from official training with seed 42, use first 8,000 for training and remaining 1,000 for validation; sample 1,000 from official validation for held-out test. Script drops missing captions and duplicate IDs and checks image paths. Vocabulary, IDF and SVD are fitted only on the 8,000 training captions; frozen transformations apply to both held-out splits. Image weights and preprocessing are fixed. Inspect prepared outputs and verify IDs, pairing, split disjointness and finite values before training.",
+  "resource_and_limitations": "MPS and pretrained weights must be available to the host; weights may require download. Batch size 32 bounds inference memory. TF-IDF is sparse prior to SVD. The requested SVD dimension is capped by available training rows and vocabulary. One sampled official-validation caption was empty; missing captions are dropped by the script, so inspect the actual manifests and output for empty text. ResNet18 and text vectorizer are not fine-tuned; this is not end-to-end CLIP.",
+  "command": "python analysis/prepare_dataset_1.py --source data/dataset_1 --output outputs/final_dataset_1/prepared --train-size 8000 --validation-size 1000 --eval-size 1000 --batch-size 32 --seed 42 --device mps --image-encoder resnet18 --text-vectorizer tfidf --text-max-features 12000 --text-components 128 --text-ngram-max 2"
+}

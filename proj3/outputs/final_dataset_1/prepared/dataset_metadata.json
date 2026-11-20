@@ -1,0 +1,22 @@
+{
+  "dataset": "ROCOv2",
+  "train_rows": 8000,
+  "validation_rows": 1000,
+  "eval_rows": 1000,
+  "image_features": 512,
+  "text_features": 128,
+  "image_encoder": "resnet18",
+  "text_vectorizer": "tfidf",
+  "text_ngram_max": 2,
+  "text_max_features": 12000,
+  "feature_extraction_device": "mps",
+  "seed": 42,
+  "evaluation_split": "official validation subset (held-out test)",
+  "text_fitting": "training split only; validation and test transformed without fitting",
+  "validation_isolation": "separate train-only fitted validation.csv",
+  "limitations": [
+    "Not end-to-end CLIP training",
+    "ImageNet ResNet18 is not radiology-specific",
+    "Color histogram is a nonsemantic image baseline"
+  ]
+}

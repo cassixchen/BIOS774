@@ -1,0 +1,65 @@
+{
+  "dataset": "10x Multiome PBMC",
+  "source": "data/dataset_2/filtered_feature_bc_matrix.h5",
+  "cells": 10970,
+  "features": {
+    "Gene Expression": 36601,
+    "Peaks": 111743
+  },
+  "sparse_nonzeros": 113471052,
+  "paired_by": "shared cell barcodes",
+  "has_cell_type_labels": false,
+  "sampled_cells": 1000,
+  "rna_library_size": {
+    "median": 2544.0,
+    "p10": 997.9,
+    "p90": 5186.3,
+    "max": 24777.0
+  },
+  "rna_detected_genes": {
+    "median": 1374.0,
+    "p10": 644.0,
+    "p90": 2317.2,
+    "max": 6689.0
+  },
+  "atac_total_counts": {
+    "median": 22536.0,
+    "p10": 7166.500000000001,
+    "p90": 40337.60000000001,
+    "max": 208132.0
+  },
+  "atac_detected_peaks": {
+    "median": 8722.5,
+    "p10": 3216.7,
+    "p90": 13943.300000000001,
+    "max": 47927.0
+  },
+  "supported_preprocessing": {
+    "rna_normalization": [
+      "library-log1p",
+      "log1p"
+    ],
+    "rna_feature_selection": [
+      "variance",
+      "detection"
+    ],
+    "atac_transform": [
+      "tfidf",
+      "binary-tfidf"
+    ],
+    "atac_feature_selection": [
+      "frequency",
+      "variance"
+    ],
+    "rna_features": "configurable",
+    "atac_features": "configurable",
+    "rna_components": "configurable SVD dimension",
+    "atac_components": "configurable SVD dimension"
+  },
+  "decision_guidance": [
+    "Prefer library-size normalization if RNA sequencing depth varies substantially.",
+    "Binary ATAC TF-IDF discards count magnitudes; useful for accessibility presence.",
+    "Fit feature selection, IDF and SVD on training cells only; do not invent cell-type labels.",
+    "Never densify the full feature-by-cell matrix."
+  ]
+}

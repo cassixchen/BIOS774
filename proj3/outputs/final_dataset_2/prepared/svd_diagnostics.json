@@ -1,0 +1,42 @@
+{
+  "RNA": {
+    "selected_algorithm": "arpack",
+    "attempts": [
+      {
+        "algorithm": "randomized",
+        "runtime_warnings": [
+          "divide by zero encountered in matmul",
+          "overflow encountered in matmul",
+          "invalid value encountered in matmul"
+        ],
+        "finite_outputs": true
+      },
+      {
+        "algorithm": "arpack",
+        "runtime_warnings": [],
+        "finite_outputs": true
+      }
+    ],
+    "explained_variance_ratio_sum": 0.2398420733647974
+  },
+  "ATAC": {
+    "selected_algorithm": "arpack",
+    "attempts": [
+      {
+        "algorithm": "randomized",
+        "runtime_warnings": [
+          "divide by zero encountered in matmul",
+          "overflow encountered in matmul",
+          "invalid value encountered in matmul"
+        ],
+        "finite_outputs": true
+      },
+      {
+        "algorithm": "arpack",
+        "runtime_warnings": [],
+        "finite_outputs": true
+      }
+    ],
+    "explained_variance_ratio_sum": 0.1926282663966714
+  }
+}

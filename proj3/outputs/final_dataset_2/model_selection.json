@@ -1,0 +1,41 @@
+{
+  "candidates": [
+    {
+      "method": "contrastive",
+      "encoder1": "linear",
+      "encoder2": "linear",
+      "epochs": 40,
+      "batch_size": 128,
+      "latent_dim": 32,
+      "seed": 42
+    },
+    {
+      "method": "contrastive",
+      "encoder1": "mlp",
+      "encoder2": "mlp",
+      "epochs": 40,
+      "batch_size": 128,
+      "latent_dim": 32,
+      "seed": 42
+    },
+    {
+      "method": "selfsupervised",
+      "encoder1": "mlp",
+      "encoder2": "linear",
+      "epochs": 40,
+      "batch_size": 128,
+      "latent_dim": 32,
+      "seed": 42
+    }
+  ],
+  "selection": "Host selects highest mean bidirectional validation Recall@5, without retraining; test once after selection. No winner selected in planning.",
+  "rationale": [
+    "Linear/linear contrastive is a low-capacity baseline for 64-dimensional SVD inputs with 8776 training pairs.",
+    "MLP/MLP contrastive adds nonlinear capacity in each modality; higher overfitting risk than linear.",
+    "MLP RNA and linear ATAC selfsupervised reconstruction provide a different objective and asymmetric capacity; independent reconstruction may not align modalities."
+  ],
+  "architecture": "Linear maps input directly to latent; MLP is input \u2192 128 ReLU \u2192 latent. RNA is encoder1, ATAC encoder2. Fixed SVD inputs; trained projections are not foundation-model fine-tuning.",
+  "training": "Contrastive uses symmetric paired InfoNCE, normalized embeddings and temperature 0.1; batch negatives can include biologically similar false negatives. Selfsupervised uses separate within-modality MSE reconstruction, not cross-modal prediction. Train-only imputation and scaling occur in train.py.",
+  "rejected": "Supervised learning is infeasible without genuine labels. Deep MLP has greater capacity and overfitting and compute risk for 64-dimensional precomputed features; no architecture was benchmarked.",
+  "warnings": "Randomized SVD produced divide-by-zero, overflow and invalid matmul warnings; both fits were rejected and warning-free finite ARPACK fits used. Explained variance sums RNA 0.2398, ATAC 0.1926; substantial variance remains outside retained components."
+}

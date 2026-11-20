@@ -1,0 +1,51 @@
+{
+  "inspection_measurements": {
+    "cells": 10970,
+    "genes": 36601,
+    "peaks": 111743,
+    "sparse_nonzeros": 113471052,
+    "sampled_cells": 1000,
+    "rna_library_p10_median_p90": [
+      997.9,
+      2544,
+      5186.3
+    ],
+    "rna_detected_genes_median": 1374,
+    "atac_counts_p10_median_p90": [
+      7166.5,
+      22536,
+      40337.6
+    ],
+    "atac_detected_peaks_median": 8722.5,
+    "labels": false
+  },
+  "configurations": [
+    {
+      "name": "selected",
+      "rna": "library-log1p; variance top 2000; 64 SVD",
+      "atac": "binary-tfidf; frequency top 12000; 64 SVD",
+      "advantages": "Depth normalization, variable RNA and accessible peaks, compact paired inputs; binary accessibility reduces count-depth influence.",
+      "disadvantages": "Discards ATAC count magnitude and low-frequency peaks; SVD loses information.",
+      "compute": "Sparse selection and two 64-component SVD fits; moderate memory and CPU."
+    },
+    {
+      "name": "alternative",
+      "rna": "log1p; detection top 4000; 128 SVD",
+      "atac": "count tfidf; variance top 20000; 128 SVD",
+      "advantages": "Retains ATAC count magnitude and more features and components.",
+      "disadvantages": "More depth sensitivity and substantially higher compute; detection emphasizes common genes.",
+      "compute": "Larger sparse matrices and approximately doubled SVD width."
+    }
+  ],
+  "selected_justification": {
+    "rna_normalization": "RNA p90/p10 library size is about 5.2; per-cell library normalization to 10000 and log1p reduce depth and count skew.",
+    "rna_selection": "Top 2000 training variance genes are a tractable subset of 36601 and prioritize variation; 1374 median genes are detected per sampled cell.",
+    "atac_transform": "Binary TF-IDF models accessibility presence and discounts widely detected peaks; count p90/p10 is about 5.6, so discarding magnitude limits depth influence.",
+    "atac_selection": "Frequency selects 12000 of 111743 peaks with training support, balancing sparse coverage and cost; rare signals may be lost.",
+    "reduction": "64 components per modality provide compact features for 8776 training cells and limit dense output and model cost; not benchmarked."
+  },
+  "rejected_alternatives": "The larger alternative has greater compute and may preserve depth effects; no alternatives were benchmarked.",
+  "leakage_and_resources": "Seeded disjoint cell splits; feature rankings, IDF and SVD fit exclusively on training cells; frozen transforms applied to validation and test. Sparse matrices retained through SVD; no full dense feature matrix.",
+  "command": "python analysis/prepare_dataset_2.py --source data/dataset_2 --output outputs/final_dataset_2/prepared --train-size 8776 --validation-size 1097 --eval-size 1097 --rna-features 2000 --atac-features 12000 --rna-components 64 --atac-components 64 --rna-normalization library-log1p --rna-feature-selection variance --atac-feature-selection frequency --atac-transform binary-tfidf --seed 42",
+  "seed": 42
+}

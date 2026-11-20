@@ -1,0 +1,8 @@
+{
+  "objective": "Learn informative representations capturing relationships between medical images and their associated textual descriptions.",
+  "operational_goal": "Paired image-to-text and text-to-image retrieval; exact paired row is the target. Retrieval is a measurable proxy, not the entirety of representational quality or clinical validity.",
+  "genuine_labels": "No label column in prepared data; captions are paired descriptions, not class labels.",
+  "dataset": "ROCOv2; 8000 training pairs, 1000 validation pairs, 1000 held-out test pairs.",
+  "selection": "Mean of image-to-text and text-to-image validation Recall@5, same validation split for all candidates; test only after selection.",
+  "limitations": "Other relevant images or captions may be treated as negatives or incorrect retrievals; pretrained image and text feature extraction remain fixed."
+}

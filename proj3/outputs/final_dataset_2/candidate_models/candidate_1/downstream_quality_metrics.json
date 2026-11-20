@@ -1,0 +1,45 @@
+{
+  "n_paired_samples": 1097,
+  "interpretation": "Exact paired-row matching; similar nonmatching samples count as incorrect",
+  "mod1_to_mod2": {
+    "recall_at_1": 0.020966271649954422,
+    "recall_at_5": 0.08933454876937101,
+    "recall_at_10": 0.14767547857793983,
+    "recall_at_20": 0.2488605287146764,
+    "recall_at_50": 0.41385597082953507,
+    "recall_at_100": 0.5815861440291704,
+    "median_rank": 70.0,
+    "mean_rank": 126.6964448495898,
+    "mean_reciprocal_rank": 0.06779317207970387
+  },
+  "mod2_to_mod1": {
+    "recall_at_1": 0.014585232452142206,
+    "recall_at_5": 0.07474931631722881,
+    "recall_at_10": 0.1349134001823154,
+    "recall_at_20": 0.2178669097538742,
+    "recall_at_50": 0.3892433910665451,
+    "recall_at_100": 0.5879671832269827,
+    "median_rank": 77.0,
+    "mean_rank": 126.22333637192342,
+    "mean_reciprocal_rank": 0.05820173506689938
+  },
+  "mean_bidirectional": {
+    "recall_at_1": 0.017775752051048314,
+    "recall_at_5": 0.08204193254329992,
+    "recall_at_10": 0.14129443938012762,
+    "recall_at_20": 0.2333637192342753,
+    "recall_at_50": 0.4015496809480401,
+    "recall_at_100": 0.5847766636280766,
+    "mean_reciprocal_rank": 0.06299745357330162,
+    "median_rank": 73.5
+  },
+  "random_recall_baseline": {
+    "recall_at_1": 0.0009115770282588879,
+    "recall_at_5": 0.004557885141294439,
+    "recall_at_10": 0.009115770282588878,
+    "recall_at_20": 0.018231540565177756,
+    "recall_at_50": 0.04557885141294439,
+    "recall_at_100": 0.09115770282588878
+  },
+  "source": "/Users/cassixchen/Desktop/unc/BIOS774/proj3/outputs/final_dataset_2/candidate_models/candidate_1/eval_embeddings.csv"
+}

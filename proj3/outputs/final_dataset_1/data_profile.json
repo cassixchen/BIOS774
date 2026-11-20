@@ -1,0 +1,26 @@
+{
+  "train_rows": 8000,
+  "eval_rows": 1000,
+  "modalities": {
+    "mod1": {
+      "features": 512,
+      "missing_fraction": 0.0
+    },
+    "mod2": {
+      "features": 128,
+      "missing_fraction": 0.0
+    }
+  },
+  "has_labels": false,
+  "label_classes": null,
+  "schema_valid": true,
+  "additional_validation": {
+    "validation_rows": 1000,
+    "all_splits_numeric_and_finite": true,
+    "identical_ordered_columns": true,
+    "unique_and_pairwise_disjoint_sample_ids": true,
+    "manifest_ids_match_in_order": true,
+    "manifest_captions_and_image_paths_nonmissing": true,
+    "validation_method": "Supplementary pandas and numpy schema, finiteness, ID and manifest checks; no test metrics used for planning."
+  }
+}

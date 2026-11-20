@@ -1,0 +1,52 @@
+{
+  "selection_status": "Proposed candidates only; no model trained or selected yet.",
+  "selection_metric": "Mean bidirectional validation Recall@5 only; host selects maximum on the same validation split. Test is untouched for model selection; evaluate winner once on held-out test.",
+  "evidence": "8000 paired training examples, 512 fixed ResNet18 image features and 128 train-fitted TF-IDF/SVD text features; no genuine class labels. Both modalities have finite numeric values and matching row IDs.",
+  "candidates": [
+    {
+      "configuration": {
+        "method": "contrastive",
+        "encoder1": "linear",
+        "encoder2": "linear",
+        "epochs": 25,
+        "batch_size": 128,
+        "latent_dim": 64,
+        "seed": 42
+      },
+      "rationale": "Low-capacity linear projections provide a computationally cheap alignment baseline and reduce overfitting risk."
+    },
+    {
+      "configuration": {
+        "method": "contrastive",
+        "encoder1": "mlp",
+        "encoder2": "linear",
+        "epochs": 25,
+        "batch_size": 128,
+        "latent_dim": 64,
+        "seed": 42
+      },
+      "rationale": "A 128-unit nonlinear image projection can adapt the larger 512-dimensional visual representation; a linear text projection limits capacity on the compressed 128-dimensional text representation."
+    },
+    {
+      "configuration": {
+        "method": "contrastive",
+        "encoder1": "mlp",
+        "encoder2": "mlp",
+        "epochs": 25,
+        "batch_size": 128,
+        "latent_dim": 64,
+        "seed": 42
+      },
+      "rationale": "Two 128-unit nonlinear projections allow both modalities to adapt; increased capacity may overfit relative to the other choices."
+    }
+  ],
+  "common_parameters": "25 epochs, batch size 128, latent dimension 64 and seed 42 are fixed before validation to make the architecture comparison interpretable. Batch 128 offers in-batch negatives at moderate memory cost; these settings are feasible choices, not measured optima.",
+  "training": "Host trains symmetric paired InfoNCE on normalized embeddings with temperature 0.1 and Adam learning rate 0.001, using batch peers as negatives. Median imputation and standardization fit training features only. Similar medical images or captions can be false negatives. ResNet18 and the TF-IDF/SVD pipeline are fixed; only projections are learned.",
+  "rejected_alternatives": [
+    "Supervised learning: no genuine class labels.",
+    "Within-modality selfsupervised MSE autoencoders: reconstruction alone does not align image and text; less directly suited to retrieval.",
+    "Deep MLP: more parameters and overfitting risk for 8000 pairs; compare linear and one-hidden-layer projections first.",
+    "Color histogram and hashing were considered during preprocessing but not benchmarked."
+  ],
+  "validation_protocol": "Freeze each candidate checkpoint; run representation evaluation and downstream retrieval on validation. Choose highest mean bidirectional Recall@5; retain winner checkpoint without retraining. Random Recall@5 is 5/1000 = 0.005 for 1000 retrieval candidates."
+}

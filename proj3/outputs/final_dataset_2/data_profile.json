@@ -1,0 +1,86 @@
+{
+  "train_rows": 8776,
+  "eval_rows": 1097,
+  "modalities": {
+    "mod1": {
+      "features": 64,
+      "missing_fraction": 0.0
+    },
+    "mod2": {
+      "features": 64,
+      "missing_fraction": 0.0
+    }
+  },
+  "has_labels": false,
+  "label_classes": null,
+  "schema_valid": true,
+  "validation_rows": 1097,
+  "all_split_checks": {
+    "train": {
+      "rows": 8776,
+      "unique_ids": true,
+      "manifest_order_matches": true,
+      "numeric_finite": true,
+      "missing_values": 0
+    },
+    "validation": {
+      "rows": 1097,
+      "unique_ids": true,
+      "manifest_order_matches": true,
+      "numeric_finite": true,
+      "missing_values": 0
+    },
+    "eval": {
+      "rows": 1097,
+      "unique_ids": true,
+      "manifest_order_matches": true,
+      "numeric_finite": true,
+      "missing_values": 0
+    }
+  },
+  "identical_ordered_columns": true,
+  "split_ids_disjoint": true,
+  "pairing": "Each row contains RNA and ATAC derived from the same original cell barcode; manifests match output order.",
+  "svd_diagnostics": {
+    "RNA": {
+      "selected_algorithm": "arpack",
+      "attempts": [
+        {
+          "algorithm": "randomized",
+          "runtime_warnings": [
+            "divide by zero encountered in matmul",
+            "overflow encountered in matmul",
+            "invalid value encountered in matmul"
+          ],
+          "finite_outputs": true
+        },
+        {
+          "algorithm": "arpack",
+          "runtime_warnings": [],
+          "finite_outputs": true
+        }
+      ],
+      "explained_variance_ratio_sum": 0.2398420733647974
+    },
+    "ATAC": {
+      "selected_algorithm": "arpack",
+      "attempts": [
+        {
+          "algorithm": "randomized",
+          "runtime_warnings": [
+            "divide by zero encountered in matmul",
+            "overflow encountered in matmul",
+            "invalid value encountered in matmul"
+          ],
+          "finite_outputs": true
+        },
+        {
+          "algorithm": "arpack",
+          "runtime_warnings": [],
+          "finite_outputs": true
+        }
+      ],
+      "explained_variance_ratio_sum": 0.1926282663966714
+    }
+  }
+}
